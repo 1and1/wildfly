@@ -46,6 +46,23 @@
         </license>
     </licenses>
 
+    <distributionManagement>
+			<repository>
+				<id>${oneandone.maven.repository}</id>
+				<name>${oneandone.maven.repository}-releases</name>
+				<url>${oneandone.maven.repository.url}-release</url>
+				<uniqueVersion>false</uniqueVersion>
+				<layout>default</layout>
+			</repository>
+			<snapshotRepository>
+				<id>${oneandone.maven.repository}</id>
+				<name>${oneandone.maven.repository}-snapshots</name>
+				<url>${oneandone.maven.repository.url}-snapshot</url>
+				<uniqueVersion>true</uniqueVersion>
+				<layout>default</layout>
+			</snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
