@@ -679,7 +679,10 @@ class CommandContextImpl implements CommandContext, ModelControllerClientFactory
         }
         try {
             if (password) {
-                return console.readLine(prompt, (char) 0x00);
+            		//TIFSPP-1276
+            		//BEGIN
+            		return readPassword(prompt);
+            		//END
             } else {
                 return console.readLine(prompt);
             }
@@ -691,7 +694,15 @@ class CommandContextImpl implements CommandContext, ModelControllerClientFactory
         }
     }
 
-    @Override
+    //TIFSPP-1276
+    // BEGIN
+    private String readPassword(String prompt) {
+    	char[] password = System.console().readPassword(prompt, new Object[0]);
+    	return new String(password);
+		}
+    // END
+
+		@Override
     public void printColumns(Collection<String> col) {
         if(log.isInfoEnabled()) {
             log.info(col);
