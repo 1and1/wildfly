@@ -338,6 +338,7 @@ class CommandContextImpl implements CommandContext, ModelControllerClientFactory
         Settings.getInstance().setHistoryDisabled(!config.isHistoryEnabled());
         Settings.getInstance().setHistoryFile(new File(config.getHistoryFileDir(), config.getHistoryFileName()));
         Settings.getInstance().setHistorySize(config.getHistoryMaxSize());
+        Settings.getInstance().setEnablePipelineAndRedirectionParser(false);
     }
 
     private void initCommands() {
@@ -679,10 +680,7 @@ class CommandContextImpl implements CommandContext, ModelControllerClientFactory
         }
         try {
             if (password) {
-                //TIFSPP-1276
-                //BEGIN
-                return readPassword(prompt);
-                //END
+                return console.readLine(prompt, (char) 0x00);
             } else {
                 return console.readLine(prompt);
             }
@@ -693,14 +691,6 @@ class CommandContextImpl implements CommandContext, ModelControllerClientFactory
             }
         }
     }
-
-    //TIFSPP-1276
-    // BEGIN
-    private String readPassword(String prompt) {
-      char[] password = System.console().readPassword(prompt, new Object[0]);
-      return new String(password);
-    }
-    // END
 
     @Override
     public void printColumns(Collection<String> col) {

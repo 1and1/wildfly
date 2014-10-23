@@ -28,15 +28,15 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 
+import org.jboss.aesh.complete.CompleteOperation;
+import org.jboss.aesh.complete.Completion;
+import org.jboss.aesh.console.Config;
+import org.jboss.aesh.console.Prompt;
+import org.jboss.aesh.console.settings.Settings;
 import org.jboss.as.cli.CliInitializationException;
 import org.jboss.as.cli.CommandContext;
 import org.jboss.as.cli.CommandHistory;
 import org.jboss.as.cli.CommandLineCompleter;
-
-import org.jboss.aesh.complete.CompleteOperation;
-import org.jboss.aesh.complete.Completion;
-import org.jboss.aesh.console.Config;
-import org.jboss.aesh.console.settings.Settings;
 
 /**
  *
@@ -72,11 +72,14 @@ public interface Console {
 
     static final class Factory {
 
-        public static Console getConsole(CommandContext ctx) throws CliInitializationException {
+        public static Console getConsole(CommandContext ctx)
+                throws CliInitializationException {
             return getConsole(ctx, null, null);
         }
 
-        public static Console getConsole(final CommandContext ctx, InputStream is, OutputStream os) throws CliInitializationException {
+        public static Console getConsole(final CommandContext ctx,
+                InputStream is, OutputStream os)
+                throws CliInitializationException {
 
             org.jboss.aesh.console.Console aeshConsole = null;
             try {
@@ -97,11 +100,13 @@ public interface Console {
                     console.addCompletion(new Completion() {
                         @Override
                         public void complete(CompleteOperation co) {
-                            int offset =  completer.complete(cmdCtx,
-                                    co.getBuffer(), co.getCursor(), co.getCompletionCandidates());
+                            int offset = completer.complete(cmdCtx,
+                                    co.getBuffer(), co.getCursor(),
+                                    co.getCompletionCandidates());
                             co.setOffset(offset);
-                            if(co.getCompletionCandidates().size() == 1 &&
-                                    co.getCompletionCandidates().get(0).startsWith(co.getBuffer()))
+                            if (co.getCompletionCandidates().size() == 1
+                                    && co.getCompletionCandidates().get(0)
+                                            .startsWith(co.getBuffer()))
                                 co.doAppendSeparator(true);
                             else
                                 co.doAppendSeparator(false);
@@ -143,9 +148,9 @@ public interface Console {
                     String[] newList = new String[list.size()];
                     list.toArray(newList);
                     try {
-                        console.pushToStdOut(
-                                org.jboss.aesh.util.Parser.formatDisplayList(newList,
-                                        console.getTerminalHeight(), console.getTerminalWidth()));
+                        console.pushToStdOut(org.jboss.aesh.util.Parser
+                                .formatDisplayList(newList,
+                                        getTerminalHeight(), getTerminalWidth()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -182,7 +187,8 @@ public interface Console {
                 @Override
                 public String readLine(String prompt, Character mask) {
                     try {
-                        return console.read(prompt, mask).getBuffer();
+                        return console.read(new Prompt(prompt), mask)
+                                .getBuffer();
                     } catch (IOException e) {
                         e.printStackTrace();
                         return null;
@@ -191,47 +197,48 @@ public interface Console {
 
                 @Override
                 public int getTerminalWidth() {
-                    return console.getTerminalWidth();
+                    return console.getTerminalSize().getWidth();
                 }
 
                 @Override
                 public int getTerminalHeight() {
-                    return console.getTerminalHeight();
+                    return console.getTerminalSize().getHeight();
                 }
 
-            class HistoryImpl implements CommandHistory {
+                class HistoryImpl implements CommandHistory {
 
-                @SuppressWarnings("unchecked")
-                @Override
-                public List<String> asList() {
-                    return console.getHistory().getAll();
-                }
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public List<String> asList() {
+                        return console.getHistory().getAll();
+                    }
 
-                @Override
-                public boolean isUseHistory() {
-                    return !Settings.getInstance().isHistoryDisabled();
-                }
+                    @Override
+                    public boolean isUseHistory() {
+                        return !Settings.getInstance().isHistoryDisabled();
+                    }
 
-                @Override
-                public void setUseHistory(boolean useHistory) {
-                    Settings.getInstance().setHistoryDisabled(!useHistory);
-                }
+                    @Override
+                    public void setUseHistory(boolean useHistory) {
+                        Settings.getInstance().setHistoryDisabled(!useHistory);
+                    }
 
-                @Override
-                public void clear() {
-                    console.getHistory().clear();
-                }
+                    @Override
+                    public void clear() {
+                        console.getHistory().clear();
+                    }
 
-                @Override
-                public void setMaxSize(int maxSize) {
-                    Settings.getInstance().setHistorySize(maxSize);
-                }
+                    @Override
+                    public void setMaxSize(int maxSize) {
+                        Settings.getInstance().setHistorySize(maxSize);
+                    }
 
-                @Override
-                public int getMaxSize() {
-                    return Settings.getInstance().getHistorySize();
+                    @Override
+                    public int getMaxSize() {
+                        return Settings.getInstance().getHistorySize();
+                    }
                 }
-            }};
+            };
         }
     }
 }
