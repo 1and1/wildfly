@@ -98,13 +98,17 @@ public class RemoteOutboundConnectionService extends AbstractOutboundConnectionS
             sslContext = realm.getSSLContext();
         }
 
-        OptionMap.Builder builder = OptionMap.builder();
-        builder.addAll(this.connectionCreationOptions);
+        // WFLY-1924: An EJB on a WildFly server can't call another bean on a second server with remoting and SSL
+        final OptionMap.Builder builder = OptionMap.builder();
+        // first set the defaults
         builder.set(SASL_POLICY_NOANONYMOUS, Boolean.FALSE);
         builder.set(SASL_POLICY_NOPLAINTEXT, Boolean.FALSE);
         builder.set(Options.SASL_DISALLOWED_MECHANISMS, Sequence.of(JBOSS_LOCAL_USER));
         builder.set(Options.SSL_ENABLED, true);
         builder.set(Options.SSL_STARTTLS, true);
+
+        // now override with user specified options
+        builder.addAll(this.connectionCreationOptions);
 
         return endpoint.connect(uri, builder.getMap(), callbackHandler, sslContext);
     }
